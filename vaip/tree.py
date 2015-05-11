@@ -17,85 +17,98 @@ class Number(BaseBox):
 
     def __init__(self, v):
         super().__init__()
-        try:
-            v = int(v)
-        except:
-            v = float(v)
-        self.__v = v
+        if type(v) not in (int, float):
+            try:
+                v = int(v)
+            except:
+                v = float(v)
+        self.value = v
 
     def __lt__(self, oth):
-        return False if oth is None else self.__v < oth.__v
+        return False if oth is None else self.value < oth.value
 
     def __eq__(self, oth):
-        return False if oth is None else self.__v == oth.__v
+        if oth is None:
+            return False
+        return self.value == oth.value
 
     def __repr__(self):
-        return 'Number(%r)' % self.__v
+        return 'Number(%r)' % self.value
+
 
 class Range(BaseBox):
 
     def __init__(self, start, end):
         super().__init__()
         assert None in (start, end) or start <= end
-        self.__start = start
-        self.__end = end
+        self.start = start
+        self.end = end
 
     def __lt__(self, oth):
-        return self.__start < oth.__start or self.__end < oth.__end
+        if oth is None:
+            return False
+        return self.start < oth.start or self.end < oth.end
 
     def __eq__(self, oth):
-        return self.__start == oth.__start and self.__end == oth.__end
+        if oth is None:
+            return False
+        return self.start == oth.start and self.end == oth.end
 
     def __repr__(self):
-        return 'Range(%r, %r)' % (self.__start, self.__end)
+        return 'Range(start=%r, end=%r)' % (self.start, self.end)
+
 
 class Matching(BaseBox):
 
     def __init__(self, pattern):
         super().__init__()
-        self.__pattern = re.compile(pattern)
+        self.pattern = re.compile(pattern)
+
+    @property
+    def match(self):
+        return self.pattern.match
 
     def __repr__(self):
-        return 'Match(%r)' % self.__pattern
+        return 'Match(%r)' % self.pattern
 
 class String(BaseBox):
 
     def __init__(self, matching=None):
         super().__init__()
-        self.__matching = matching
+        self.matching = matching
 
     def __repr__(self):
-        if self.__matching is None:
-            return 'String'
-        return 'String(%r)' % self.__matching
+        if self.matching is None:
+            return 'String()'
+        return 'String(matching=%r)' % self.matching
 
 class Real(BaseBox):
 
     def __init__(self, range=None):
         super().__init__()
-        self.__range = range
+        self.range = range
 
     def __repr__(self):
-        return 'Real(range=%r)' % self.__range
+        return 'Real(range=%r)' % self.range
 
 class Int(BaseBox):
 
     def __init__(self, range=None):
         super().__init__()
-        self.__range = range
+        self.range = range
 
     def __repr__(self):
-        return 'Int(range=%r)' % self.__range
+        return 'Int(range=%r)' % self.range
 
 class Array(BaseBox):
 
     def __init__(self, type, range=None):
         super().__init__()
-        self.__type = type
-        self.__range = range
+        self.type = type
+        self.range = range
 
     def __repr__(self):
-        return 'Array(type=%r, range=%r)' % (self.__type, self.__range)
+        return 'Array(type=%r, range=%r)' % (self.type, self.range)
 
 
 class Map(BaseBox):
@@ -104,52 +117,52 @@ class Map(BaseBox):
         super().__init__()
         if iter(fields) is fields:
             fields = list(fields)
-        self.__fields = fields
+        self.fields = fields
 
     def __repr__(self):
-        return 'Map(fields=%r)' % self.__fields
+        return 'Map(fields=%r)' % self.fields
 
 
 class Field(BaseBox):
 
     def __init__(self, name, type, mod):
         super().__init__()
-        self.__name = name
-        self.__type = type
-        self.__mod = mod
+        self.name = name
+        self.type = type
+        self.mod = mod
 
     def __repr__(self):
         return 'Field(name=%r, type=%r, mod=%r)' % (
-            self.__name, self.__type, self.__mod
+            self.name, self.type, self.mod
         )
 
 class Modifier(BaseBox):
 
     def __init__(self, name):
         super().__init__()
-        self.__name = name
+        self.name = name
 
     def __repr__(self):
-        return 'Modifier(%r)' % self.__name
+        return 'Modifier(name=%r)' % self.name
 
 class TypeDef(BaseBox):
 
     def __init__(self, name, type, mod):
         super().__init__()
-        self.__name = name
-        self.__type = type
-        self.__mod = mod
+        self.name = name
+        self.type = type
+        self.mod = mod
 
     def __repr__(self):
         return 'TypeDef(name=%r, type=%r, mod=%r)' % (
-            self.__name, self.__type, self.__mod
+            self.name, self.type, self.mod
         )
 
 class CustomType(BaseBox):
 
     def __init__(self, name):
         super().__init__()
-        self.__name = name
+        self.name = name
 
     def __repr__(self):
-        return 'CustomType(%r)' % self.__name
+        return 'CustomType(name=%r)' % self.name

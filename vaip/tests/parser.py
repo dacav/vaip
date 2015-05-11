@@ -24,63 +24,43 @@ class Tests(ut.TestCase):
 
         self.parse = p
 
-    def _test_opt_range(self):
+    def test_opt_range(self):
         check = [
-            (self.parse('(1, *)'),   Range(Number(1),   None)),
-            (self.parse('(1.4, *)'), Range(Number(1.4), None)),
-            (self.parse('(*, 3.1)'), Range(None, Number(3.1))),
-            (self.parse('(*, 2)'),   Range(None,   Number(2))),
+            ('(1, *)',   Range(Number(1),   None)),
+            ('(1.4, *)', Range(Number(1.4), None)),
+            ('(*, 3.1)', Range(None, Number(3.1))),
+            ('(*, 2)',   Range(None,   Number(2))),
         ]
-        for got, exp in check:
-            self.assertEqual(got, exp)
-
-    def _test_opt_matching(self):
-        try:
-            x = self.parse('matching /cul.\./')
-            x = self.parse('')
-        except vaip.ParsingError as e:
-            print('column', e.source_pos.colno)
-            raise
-
-    def _test_array(self):
-        texts = [
-            'array of int',
-            'array (1, *) of real',
-            'array (1, *) of real (4, 9.5)',
-            'array (1, *) of string matching /foo\d/',
-        ]
-
-        for t in texts:
-            x = self.parse(t)
-            print(x)
-
-    def _test_field(self):
-        text = 'hello : optional array (1, *) of string matching /.ilvia/'
-        x = self.parse(text)
-        print(x)
-
-    def _test_field_list(self):
-        text = '(hello : optional array of string, bye : int (0, 32))'
-        try:
-            x = self.parse(text)
-            print(x)
-        except vaip.ParsingError as e:
-            print(e.source_pos.colno)
-            raise
+        for text, exp in check:
+            only, *slurp = self.parse('type x : int ' + text)
+            self.assertEqual(len(slurp), 0)
+            self.assertEqual(only.type.range, exp)
 
     def test_typedef(self):
-        texts = [
-            'type uid : string matching /[0-9a-f]*/',
-            '''entry type user : (
+        text = '''
+            type uid : string matching /[0-9a-f]*/;
+            entry type user : (
                 uid : uid,
                 name : string optional,
-                age : int(-1, 5) optional
-            )'''
-        ]
-        try:
-            x = self.parse(';'.join(texts))
-            print(*x, sep='\n')
-        except vaip.ParsingError as e:
-            print(e.source_pos.colno)
-            print(e.source_pos.lineno)
-            raise
+                age : int(0, *) optional
+            );
+            type counters : array (*, 10) of real (0, 1)
+        '''
+        l1, l2, l3 = self.parse(text)
+
+        self.assertEqual(l1.name, 'uid')
+        self.assertIsNotNone(l1.type.matching.match('0125af'))
+        self.assertIsNone(l1.mod)
+
+        self.assertEqual(l2.name, 'user')
+        self.assertEqual(l2.mod.name, 'entry')
+
+        l21, l22, l23 = l2.type.fields
+        self.assertEqual(l21.name, 'uid')
+        self.assertEqual(l21.mod, None)
+        self.assertEqual(l21.type.name, 'uid')
+
+        self.assertEqual(l3.name, 'counters')
+        self.assertEqual(l3.mod, None)
+        self.assertEqual(l3.type.type.range, Range(Number(0), Number(1)))
+        self.assertEqual(l3.type.range, Range(None, Number(10)))
