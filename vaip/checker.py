@@ -12,7 +12,7 @@ class Checker:
         entries = dict()
         ctx = ParseContext()
         for typedef in parse(lex(specification), ctx):
-            if typedef.mod and typedef.mod.name == 'entry':
+            if typedef.entry:
                 entries[typedef.name] = typedef
 
         #print(ctx.used) TODO: warn here

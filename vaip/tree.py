@@ -136,6 +136,10 @@ class Field(BaseBox):
             self.name, self.type, self.mod
         )
 
+    @property
+    def optional(self):
+        return self.mod is not None and self.mod.name == 'optional'
+
 class Modifier(BaseBox):
 
     def __init__(self, name):
@@ -167,3 +171,7 @@ class TypeDef(BaseBox):
         if other is None:
             return False
         return self.name < other.name
+
+    @property
+    def entry(self):
+        return self.mod is not None and self.mod.name == 'entry'
