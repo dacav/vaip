@@ -7,8 +7,10 @@ import re
 import functools as ft
 
 # --- Locally installed modules -----------------------------------------
-# --- Program internal modules -------------------------------------------
 from rply.token import BaseBox
+
+# --- Program internal modules -------------------------------------------
+from vaip import errors
 
 # ------------------------------------------------------------------------
 
@@ -122,6 +124,17 @@ class Map(BaseBox):
     def __repr__(self):
         return 'Map(fields=%r)' % self.fields
 
+    def __call__(self, val):
+        if type(val) is not dict:
+            raise errors.InputError()
+
+        for f in self.fields:
+            subval = val.get(f.name)
+            if subval is None:
+                if not f.optional:
+                    raise errors.InputError()
+            else:
+                f.type(subval)
 
 class Field(BaseBox):
 

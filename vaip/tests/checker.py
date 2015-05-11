@@ -31,6 +31,6 @@ class Tests(ut.TestCase):
         with self.assertRaises(errors.UnboundTypeError):
             Tests.ck.get_for('uid')
 
-    def test_entry(self):
+    def test_entry_1(self):
         user_ck = Tests.ck.get_for('user')
-        #print(user_ck)
+        user_ck( dict(uid = 100) )
