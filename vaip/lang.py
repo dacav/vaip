@@ -47,11 +47,13 @@ class ParseContext:
 
     def __init__(self):
         self.types = dict()
+        self.used = set()
 
     def lookup_type(self, name):
         out = self.types.get(name)
         if out is None:
             raise errors.UnboundTypeError(name)
+        self.used.add(name)
         return out.type
 
     def add_type(self, t):
@@ -60,6 +62,11 @@ class ParseContext:
         self.types[t.name] = t
         return t
 
+    @property
+    def unused(self):
+        out = set(self.types)
+        out.difference_update(self.used)
+        return out
 
 @pgen.production('types_list : type_def')
 def type_list(ctx, p):
