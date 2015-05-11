@@ -134,14 +134,15 @@ class Modifier(BaseBox):
 
 class TypeDef(BaseBox):
 
-    def __init__(self, name, type):
+    def __init__(self, name, type, mod):
         super().__init__()
         self.__name = name
         self.__type = type
+        self.__mod = mod
 
     def __repr__(self):
-        return 'TypeDef(name=%r, type=%r)' % (
-            self.__name, self.__type
+        return 'TypeDef(name=%r, type=%r, mod=%r)' % (
+            self.__name, self.__type, self.__mod
         )
 
 class CustomType(BaseBox):

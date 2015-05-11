@@ -20,6 +20,7 @@ lgen.add('COMMA', r',')
 lgen.add('COLON', r':')
 lgen.add('SCOLON', r';')
 lgen.add('NUMBER', '-?(?:\d+\.?\d*|\.\d+)')
+lgen.add('KW_ENTRY', 'entry')
 lgen.add('KW_TYPE', 'type')
 lgen.add('KW_ARRAY', 'array')
 lgen.add('KW_OF', 'of')
@@ -33,8 +34,8 @@ lgen.ignore(r'\s+')
 
 pgen = ParserGenerator([
     'STAR', 'REGEX', 'LPAR', 'RPAR', 'COMMA', 'COLON', 'SCOLON', 'NUMBER',
-    'KW_TYPE', 'KW_ARRAY', 'KW_OF', 'KW_STR', 'KW_INT', 'KW_REAL',
-    'KW_MATCHING', 'KW_OPTIONAL',
+    'KW_ENTRY', 'KW_TYPE', 'KW_ARRAY', 'KW_OF', 'KW_STR', 'KW_INT',
+    'KW_REAL', 'KW_MATCHING', 'KW_OPTIONAL',
     'ID',
 ])
 
@@ -47,9 +48,9 @@ def type_list(p):
     yield from p[0]
     yield p[2]
 
-@pgen.production('type_def : KW_TYPE ID COLON type_base')
+@pgen.production('type_def : opt_tmod KW_TYPE ID COLON type_base')
 def type_def(p):
-    return tree.TypeDef(p[1].value, p[3])
+    return tree.TypeDef(p[2].value, p[4], p[0])
 
 @pgen.production('type_base : KW_STR opt_matching')
 def type_base(p):
@@ -84,12 +85,13 @@ def field_list(p):
 def field_list(p):
     yield p[0]
 
-@pgen.production('field : ID COLON type_base opt_mod')
+@pgen.production('field : ID COLON type_base opt_fmod')
 def field(p):
     return tree.Field(p[0].value, p[2], p[3])
 
-@pgen.production('opt_mod : KW_OPTIONAL')
-def opt_mod(p):
+@pgen.production('opt_tmod : KW_ENTRY')
+@pgen.production('opt_fmod : KW_OPTIONAL')
+def opt_fmod(p):
     return tree.Modifier(p[0].value)
 
 @pgen.production('opt_range : LPAR opt_number COMMA opt_number RPAR')
@@ -104,7 +106,8 @@ def opt_number(p):
 def opt_matching(p):
     return tree.Matching(p[1].value[1:-1])
 
-@pgen.production('opt_mod : ')
+@pgen.production('opt_tmod : ')
+@pgen.production('opt_fmod : ')
 @pgen.production('opt_range : ')
 @pgen.production('opt_matching : ')
 @pgen.production('opt_number : STAR')

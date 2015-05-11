@@ -71,7 +71,7 @@ class Tests(ut.TestCase):
     def test_typedef(self):
         texts = [
             'type uid : string matching /[0-9a-f]*/',
-            '''type user : (
+            '''entry type user : (
                 uid : uid,
                 name : string optional,
                 age : int(-1, 5) optional
