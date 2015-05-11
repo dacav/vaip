@@ -8,7 +8,10 @@ import sys
 from rply import LexerGenerator, ParserGenerator
 
 # --- Program internal modules -------------------------------------------
-from vaip import tree
+from vaip import (
+    tree,
+    errors,
+)
 # ------------------------------------------------------------------------
 
 lgen = LexerGenerator()
@@ -39,71 +42,92 @@ pgen = ParserGenerator([
     'ID',
 ])
 
+
+class ParseContext:
+
+    def __init__(self):
+        self.types = dict()
+
+    def lookup_type(self, name):
+        out = self.types.get(name)
+        if out is None:
+            raise errors.UnboundTypeError(name)
+        return out.type
+
+    def add_type(self, t):
+        if t.name in self.types:
+            raise errors.RedefinedType(name)
+        self.types[t.name] = t
+        return t
+
+
 @pgen.production('types_list : type_def')
-def type_list(p):
+def type_list(ctx, p):
     yield p[0]
 
 @pgen.production('types_list : types_list SCOLON type_def')
-def type_list(p):
+def type_list(ctx, p):
     yield from p[0]
     yield p[2]
 
 @pgen.production('type_def : opt_tmod KW_TYPE ID COLON type_base')
-def type_def(p):
-    return tree.TypeDef(p[2].value, p[4], p[0])
+def type_def(ctx, p):
+    return ctx.add_type(
+        tree.TypeDef(p[2].value, p[4], p[0])
+    )
 
 @pgen.production('type_base : KW_STR opt_matching')
-def type_base(p):
+def type_base(ctx, p):
     return tree.String(p[1])
 
 @pgen.production('type_base : KW_INT opt_range')
-def type_base(p):
+def type_base(ctx, p):
     return tree.Int(p[1])
 
 @pgen.production('type_base : KW_REAL opt_range')
-def type_base(p):
+def type_base(ctx, p):
     return tree.Real(p[1])
 
 @pgen.production('type_base : KW_ARRAY opt_range KW_OF type_base')
-def type_base(p):
+def type_base(ctx, p):
     return tree.Array(p[3], p[1])
 
 @pgen.production('type_base : LPAR field_list RPAR')
-def type_base(p):
+def type_base(ctx, p):
     return tree.Map(p[1])
 
 @pgen.production('type_base : ID')
-def type_base(p):
-    return tree.CustomType(p[0].value)
+def type_base(ctx, p):
+    return ctx.lookup_type(p[0].value)
 
 @pgen.production('field_list : field_list COMMA field')
-def field_list(p):
+def field_list(ctx, p):
     yield from p[0]
     yield p[2]
 
 @pgen.production('field_list : field')
-def field_list(p):
+def field_list(ctx, p):
     yield p[0]
 
 @pgen.production('field : ID COLON type_base opt_fmod')
-def field(p):
+def field(ctx, p):
     return tree.Field(p[0].value, p[2], p[3])
 
 @pgen.production('opt_tmod : KW_ENTRY')
 @pgen.production('opt_fmod : KW_OPTIONAL')
-def opt_fmod(p):
+def opt_fmod(ctx, p):
     return tree.Modifier(p[0].value)
 
 @pgen.production('opt_range : LPAR opt_number COMMA opt_number RPAR')
-def opt_range(p):
+def opt_range(ctx, p):
     return tree.Range(p[1], p[3])
 
 @pgen.production('opt_number : NUMBER')
-def opt_number(p):
+def opt_number(ctx, p):
     return tree.Number(p[0].value)
 
 @pgen.production('opt_matching : KW_MATCHING REGEX')
-def opt_matching(p):
+def opt_matching(ctx, p):
     return tree.Matching(p[1].value[1:-1])
 
 @pgen.production('opt_tmod : ')
@@ -111,5 +135,5 @@ def opt_matching(p):
 @pgen.production('opt_range : ')
 @pgen.production('opt_matching : ')
 @pgen.production('opt_number : STAR')
-def opt_any(p):
+def opt_any(ctx, p):
     return None

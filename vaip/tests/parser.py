@@ -7,22 +7,17 @@ import unittest as ut
 
 # --- Locally installed modules -----------------------------------------
 # --- Program internal modules -------------------------------------------
-import vaip
 from vaip.tree import *
+from vaip.lang import pgen, lgen, ParseContext
 
 # ------------------------------------------------------------------------
 
 class Tests(ut.TestCase):
 
     def setUp(self):
-        parse = vaip.pgen.build().parse
-        lex = vaip.lgen.build().lex
-
-        def p(text):
-            toks = list(lex(text))
-            return parse(iter(toks))
-
-        self.parse = p
+        parse = pgen.build().parse
+        lex = lgen.build().lex
+        self.parse = lambda text : parse(lex(text), ParseContext())
 
     def test_opt_range(self):
         check = [
@@ -36,7 +31,7 @@ class Tests(ut.TestCase):
             self.assertEqual(len(slurp), 0)
             self.assertEqual(only.type.range, exp)
 
-    def test_typedef(self):
+    def test_whole(self):
         text = '''
             type uid : string matching /[0-9a-f]*/;
             entry type user : (
@@ -58,9 +53,28 @@ class Tests(ut.TestCase):
         l21, l22, l23 = l2.type.fields
         self.assertEqual(l21.name, 'uid')
         self.assertEqual(l21.mod, None)
-        self.assertEqual(l21.type.name, 'uid')
+        self.assertIs(l21.type, l1.type)
 
         self.assertEqual(l3.name, 'counters')
         self.assertEqual(l3.mod, None)
         self.assertEqual(l3.type.type.range, Range(Number(0), Number(1)))
         self.assertEqual(l3.type.range, Range(None, Number(10)))
+
+    def test_nested(self):
+        text = '''
+        type top : (
+            sub : (
+                fld : int
+            )
+        )
+        '''
+        top0, *slurp = self.parse(text)
+        self.assertEqual(len(slurp), 0)
+
+        text = '''
+        type sub : ( fld : int );
+        type top : ( sub : sub )
+        '''
+
+        sub, top1 = self.parse(text)
+        self.assertEqual(top0, top1)

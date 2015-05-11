@@ -158,11 +158,12 @@ class TypeDef(BaseBox):
             self.name, self.type, self.mod
         )
 
-class CustomType(BaseBox):
+    def __eq__(self, other):
+        if other is None:
+            return False
+        return self.name == other.name
 
-    def __init__(self, name):
-        super().__init__()
-        self.name = name
-
-    def __repr__(self):
-        return 'CustomType(name=%r)' % self.name
+    def __lt__(self):
+        if other is None:
+            return False
+        return self.name < other.name
