@@ -84,6 +84,14 @@ class String(BaseBox):
             return 'String()'
         return 'String(matching=%r)' % self.matching
 
+    def __call__(self, val):
+        if type(val) is not str:
+            raise errors.InputError()
+        if self.matching is None:
+            return
+        if self.matching.match(val) is None:
+            raise errors.InputError()
+
 class Real(BaseBox):
 
     def __init__(self, range=None):

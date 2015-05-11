@@ -18,7 +18,7 @@ class Tests(ut.TestCase):
     @classmethod
     def setUpClass(clz):
         clz.ck = checker.Checker('''
-            type uid : string matching /[0-9a-f]*/;
+            type uid : string matching /^[0-9a-f]+$/;
             entry type user : (
                 uid : uid,
                 name : string optional,
@@ -33,4 +33,8 @@ class Tests(ut.TestCase):
 
     def test_entry_1(self):
         user_ck = Tests.ck.get_for('user')
-        user_ck( dict(uid = 100) )
+        with self.assertRaises(errors.InputError):
+            user_ck(dict(uid = 100))
+        with self.assertRaises(errors.InputError):
+            user_ck(dict(uid = 'fudge'))
+        user_ck(dict(uid = 'fde'))
