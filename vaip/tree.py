@@ -110,6 +110,12 @@ class Real(BaseBox):
     def __repr__(self):
         return 'Real(range=%r)' % self.range
 
+    def __call__(self, value):
+        if type(value) is not float:
+            raise errors.InputError()
+        if self.range:
+            self.range(value)
+
 class Int(BaseBox):
 
     def __init__(self, range=None):
@@ -135,6 +141,20 @@ class Array(BaseBox):
     def __repr__(self):
         return 'Array(type=%r, range=%r)' % (self.type, self.range)
 
+    def __call__(self, value):
+        if self.range is not None:
+            try:
+                self.range(len(value))
+            except TypeError:
+                raise errors.InputError()   # No len
+        try:
+            items = iter(value)
+            if items is value:
+                raise errors.InputError()   # would consume
+        except TypeError:
+            raise errors.InputError()   # Not iterable
+        for i in items:
+            self.type(i)
 
 class Map(BaseBox):
 

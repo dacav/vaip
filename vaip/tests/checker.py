@@ -24,7 +24,7 @@ class Tests(ut.TestCase):
                 name : string optional,
                 age : int(0, *) optional
             );
-            entry type counters : array (*, 10) of real (0, 1)
+            entry type counters : array (*, 9) of real (0, 1)
         ''')
 
     def test_noentry(self):
@@ -51,3 +51,20 @@ class Tests(ut.TestCase):
         info['age'] = -1
         with self.assertRaises(errors.InputError):
             user_ck(info)
+
+    def test_array_real(self):
+        counters_ck = Tests.ck.counters
+        info = [0.1, 0.2, 0.3] * 3
+        counters_ck(info)
+        info.append(0.1)
+        with self.assertRaises(errors.InputError):
+            counters_ck(info)
+        info.pop()
+        info[-1] = 1.1
+        with self.assertRaises(errors.InputError):
+            counters_ck(info)
+        info.pop()
+        counters_ck(info)
+        info.append('hello')
+        with self.assertRaises(errors.InputError):
+            counters_ck(info)
