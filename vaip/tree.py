@@ -82,6 +82,10 @@ class Matching(BaseBox):
     def __repr__(self):
         return 'Match(%r)' % self.pattern
 
+    def __call__(self, v):
+        if self.pattern.match(v) is None:
+            raise errors.InputError()
+
 class String(BaseBox):
 
     def __init__(self, matching=None):
@@ -96,10 +100,8 @@ class String(BaseBox):
     def __call__(self, val):
         if type(val) is not str:
             raise errors.InputError()
-        if self.matching is None:
-            return
-        if self.matching.match(val) is None:
-            raise errors.InputError()
+        if self.matching is not None:
+            self.matching(val)
 
 class Real(BaseBox):
 
