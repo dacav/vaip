@@ -27,11 +27,15 @@ class Number(BaseBox):
         self.value = v
 
     def __lt__(self, oth):
+        if type(oth) in (int, float):
+            return self.value < oth
         return False if oth is None else self.value < oth.value
 
     def __eq__(self, oth):
         if oth is None:
             return False
+        if type(oth) in (int, float):
+            return self.value == oth
         return self.value == oth.value
 
     def __repr__(self):
@@ -59,6 +63,11 @@ class Range(BaseBox):
     def __repr__(self):
         return 'Range(start=%r, end=%r)' % (self.start, self.end)
 
+    def __call__(self, v):
+        if self.start is not None and v < self.start:
+            raise errors.InputError()
+        if self.end is not None and v > self.end:
+            raise errors.InputError()
 
 class Matching(BaseBox):
 
@@ -109,6 +118,12 @@ class Int(BaseBox):
 
     def __repr__(self):
         return 'Int(range=%r)' % self.range
+
+    def __call__(self, value):
+        if type(value) is not int:
+            raise errors.InputError()
+        if self.range:
+            self.range(value)
 
 class Array(BaseBox):
 

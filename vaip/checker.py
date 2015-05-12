@@ -13,13 +13,20 @@ class Checker:
         ctx = ParseContext()
         for typedef in parse(lex(specification), ctx):
             if typedef.entry:
-                entries[typedef.name] = typedef
+                cb = entries[typedef.name] = typedef.type
+                try:
+                    # Might fail if this type has a reserved name in
+                    # python. Still accessible with [] notation
+                    setattr(self, typedef.name, cb)
+                except:
+                    # TODO: warning here
+                    pass
 
-        #print(ctx.used) TODO: warn here
-        self.entries = entries
+        #print(ctx.used) TODO: warning here
+        self.__entries = entries
 
-    def get_for(self, name):
-        out = self.entries.get(name)
+    def __getitem__(self, name):
+        out = self.__entries.get(name)
         if out is None:
             raise errors.UnboundTypeError('Not an entry type: ' + str(name))
-        return out.type
+        return out

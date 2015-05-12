@@ -29,12 +29,25 @@ class Tests(ut.TestCase):
 
     def test_noentry(self):
         with self.assertRaises(errors.UnboundTypeError):
-            Tests.ck.get_for('uid')
+            Tests.ck['uid']
 
-    def test_entry_1(self):
-        user_ck = Tests.ck.get_for('user')
+    def test_optional_nested_match(self):
+        user_ck = Tests.ck.user
+        with self.assertRaises(errors.InputError):
+            user_ck(dict(name = 'lol')) # No uid
         with self.assertRaises(errors.InputError):
             user_ck(dict(uid = 100))
         with self.assertRaises(errors.InputError):
             user_ck(dict(uid = 'fudge'))
         user_ck(dict(uid = 'fde'))
+
+    def test_int_range(self):
+        user_ck = Tests.ck.user
+        info = dict(
+            uid = '91024abc',
+            age = 100,
+        )
+        user_ck(info)
+        info['age'] = -1
+        with self.assertRaises(errors.InputError):
+            user_ck(info)
