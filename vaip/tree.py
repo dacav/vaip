@@ -174,12 +174,7 @@ class Map(BaseBox):
             raise errors.InputError()
 
         for f in self.fields:
-            subval = val.get(f.name)
-            if subval is None:
-                if not f.optional:
-                    raise errors.InputError()
-            else:
-                f.type(subval)
+            f(val)
 
 class Field(BaseBox):
 
@@ -187,16 +182,20 @@ class Field(BaseBox):
         super().__init__()
         self.name = name
         self.type = type
-        self.mod = mod
+        self.optional = mod is not None and mod.name == 'optional'
 
     def __repr__(self):
         return 'Field(name=%r, type=%r, mod=%r)' % (
             self.name, self.type, self.mod
         )
 
-    @property
-    def optional(self):
-        return self.mod is not None and self.mod.name == 'optional'
+    def __call__(self, mapping):
+        val = mapping.get(self.name)
+        if val is None:
+            if not self.optional:
+                raise errors.InputError()
+        else:
+            self.type(val)
 
 class Modifier(BaseBox):
 
@@ -213,7 +212,7 @@ class TypeDef(BaseBox):
         super().__init__()
         self.name = name
         self.type = type
-        self.mod = mod
+        self.entry = mod is not None and mod.name == 'entry'
 
     def __repr__(self):
         return 'TypeDef(name=%r, type=%r, mod=%r)' % (
@@ -229,7 +228,3 @@ class TypeDef(BaseBox):
         if other is None:
             return False
         return self.name < other.name
-
-    @property
-    def entry(self):
-        return self.mod is not None and self.mod.name == 'entry'

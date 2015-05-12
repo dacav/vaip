@@ -45,18 +45,18 @@ class Tests(ut.TestCase):
 
         self.assertEqual(l1.name, 'uid')
         self.assertIsNotNone(l1.type.matching.match('0125af'))
-        self.assertIsNone(l1.mod)
+        self.assertFalse(l1.entry)
 
         self.assertEqual(l2.name, 'user')
-        self.assertEqual(l2.mod.name, 'entry')
+        self.assertTrue(l2.entry)
 
         l21, l22, l23 = l2.type.fields
         self.assertEqual(l21.name, 'uid')
-        self.assertEqual(l21.mod, None)
+        self.assertFalse(l21.optional)
         self.assertIs(l21.type, l1.type)
 
         self.assertEqual(l3.name, 'counters')
-        self.assertEqual(l3.mod, None)
+        self.assertFalse(l3.entry)
         self.assertEqual(l3.type.type.range, Range(Number(0), Number(1)))
         self.assertEqual(l3.type.range, Range(None, Number(10)))
 
