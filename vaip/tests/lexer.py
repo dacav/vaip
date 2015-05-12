@@ -8,7 +8,7 @@ from operator import attrgetter as aget
 
 # --- Locally installed modules -----------------------------------------
 # --- Program internal modules -------------------------------------------
-import vaip
+from vaip import lang
 
 # ------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ class Test(ut.TestCase):
     get = aget('name', 'value')
 
     def setUp(self):
-        self.lex = vaip.lgen.build().lex
+        self.lex = lang.lgen.build().lex
 
     def test_re(self):
         tks = map(Test.get, self.lex('* /cu.*stom/ /^re/ /gex$/ /test\/a/'))
