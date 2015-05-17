@@ -14,7 +14,7 @@ setup(
     version='0.1.0.dev',
     description='Very Automated Input Parsing',
     long_description=long_description,
-    url='https://github.com/dacav/vaip',
+    url='http://dacav.roundhousecode.com/pages/VAIP.html',
     author='Giovanni [dacav] Simoni',
     author_email='dacav@openmailbox.org',
     license='MIT',
