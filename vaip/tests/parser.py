@@ -9,6 +9,7 @@ import unittest as ut
 # --- Program internal modules -------------------------------------------
 from vaip.tree import *
 from vaip.lang import pgen, lgen, ParseContext
+from vaip.backends import checker
 
 # ------------------------------------------------------------------------
 
@@ -17,7 +18,7 @@ class Tests(ut.TestCase):
     def setUp(self):
         parse = pgen.build().parse
         lex = lgen.build().lex
-        self.parse = lambda text : parse(lex(text), ParseContext())
+        self.parse = lambda text : parse(lex(text), ParseContext(checker))
 
     def test_opt_range(self):
         check = [
