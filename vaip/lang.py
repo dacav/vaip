@@ -45,9 +45,10 @@ pgen = ParserGenerator([
 
 class ParseContext:
 
-    def __init__(self):
+    def __init__(self, binding):
         self.types = dict()
         self.used = set()
+        self.binding = binding
 
     def lookup_type(self, name):
         out = self.types.get(name)
@@ -85,23 +86,23 @@ def type_def(ctx, p):
 
 @pgen.production('type_base : KW_STR opt_matching')
 def type_base(ctx, p):
-    return tree.String(p[1])
+    return ctx.binding.String(p[1])
 
 @pgen.production('type_base : KW_INT opt_range')
 def type_base(ctx, p):
-    return tree.Int(p[1])
+    return ctx.binding.Int(p[1])
 
 @pgen.production('type_base : KW_REAL opt_range')
 def type_base(ctx, p):
-    return tree.Real(p[1])
+    return ctx.binding.Real(p[1])
 
 @pgen.production('type_base : KW_ARRAY opt_range KW_OF type_base')
 def type_base(ctx, p):
-    return tree.Array(p[3], p[1])
+    return ctx.binding.Array(p[3], p[1])
 
 @pgen.production('type_base : LPAR field_list RPAR')
 def type_base(ctx, p):
-    return tree.Map(p[1])
+    return ctx.binding.Map(p[1])
 
 @pgen.production('type_base : ID')
 def type_base(ctx, p):
@@ -118,7 +119,7 @@ def field_list(ctx, p):
 
 @pgen.production('field : ID COLON type_base opt_fmod')
 def field(ctx, p):
-    return tree.Field(p[0].value, p[2], p[3])
+    return ctx.binding.Field(p[0].value, p[2], p[3])
 
 @pgen.production('opt_tmod : KW_ENTRY')
 @pgen.production('opt_fmod : KW_OPTIONAL')
@@ -127,7 +128,7 @@ def opt_fmod(ctx, p):
 
 @pgen.production('opt_range : LPAR opt_number COMMA opt_number RPAR')
 def opt_range(ctx, p):
-    return tree.Range(p[1], p[3])
+    return ctx.binding.Range(p[1], p[3])
 
 @pgen.production('opt_number : NUMBER')
 def opt_number(ctx, p):
@@ -135,7 +136,7 @@ def opt_number(ctx, p):
 
 @pgen.production('opt_matching : KW_MATCHING REGEX')
 def opt_matching(ctx, p):
-    return tree.Matching(p[1].value[1:-1])
+    return ctx.binding.Matching(p[1].value[1:-1])
 
 @pgen.production('opt_tmod : ')
 @pgen.production('opt_fmod : ')
