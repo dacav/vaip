@@ -30,6 +30,6 @@ setup(
     ],
 
     keywords='input checking',
-    packages=['vaip'],
+    packages=['vaip', 'vaip.backends'],
     install_requires=['rply'],
 )

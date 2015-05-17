@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from vaip.lang import pgen, lgen, ParseContext
-from vaip import errors
+from vaip.backends import checker
+from vaip import (
+    errors,
+    tree,
+)
 
 class Checker:
 
@@ -10,7 +14,7 @@ class Checker:
         parse = pgen.build().parse
         lex = lgen.build().lex
         entries = dict()
-        ctx = ParseContext()
+        ctx = ParseContext(checker)
         for typedef in parse(lex(specification), ctx):
             if typedef.entry:
                 cb = entries[typedef.name] = typedef.type
