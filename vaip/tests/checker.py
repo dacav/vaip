@@ -107,15 +107,6 @@ class TestTrace(ut.TestCase):
         self.assertListEqual(exp_trace, trace)
         self.assertIn(exp_message, message)
 
-    def _verify(self, how, data, exp_trace, exp_message):
-        print('>> data >> ', data)
-        try:
-            how(data)
-        except errors.InputError as e:
-            print('>>> trace >> ', e.trace, id(e.trace))
-            print('>>> error >> ', e, id(e))
-
-
     def test_shallow(self):
         self.verify(
             TestTrace.ck.shallow,
@@ -128,7 +119,7 @@ class TestTrace(ut.TestCase):
         self.verify(
             TestTrace.ck.pong,
             tocheck,
-            [3], 'Invalid x=14.6: required  14 <= x <= 14.5'
+            [3], 'Invalid x=14.6: required 14 <= x <= 14.5'
         )
 
         tocheck[3] = 14     # Not a float, still ok
@@ -137,7 +128,7 @@ class TestTrace(ut.TestCase):
         self.verify(
             TestTrace.ck.pong,
             tocheck * 3,        # Size beyond array boundary.
-            [], 'Invalid x=15: required  0 <= x <= 10'
+            [], 'Invalid x=15: required 0 <= x <= 10'
         )
 
     def test_deep(self):
@@ -156,4 +147,23 @@ class TestTrace(ut.TestCase):
         tocheck['sub']['sub']['foo'] = 'hello'
         self.verify(TestTrace.ck.deep, tocheck,
             ['sub', 'sub', 'foo'], "Type of 'hello': expecting int, got <class 'str'>"
+        )
+        tocheck['sub']['sub']['foo'] = 99
+        self.verify(TestTrace.ck.deep, tocheck,
+            ['sub', 'sub', 'foo'], 'Invalid x=99: required 0 <= x <= 1'
+        )
+        tocheck['sub']['sub']['foo'] = 1
+        TestTrace.ck.deep(tocheck)
+
+        tocheck['sub']['sub']['bar'] = '12'
+        self.verify(TestTrace.ck.deep, tocheck,
+            ['sub', 'sub', 'bar'], 'Not a mapping'
+        )
+
+        tocheck['sub']['sub']['bar'] = dict(
+            pong=[14.0, 14.1, 14.2, 14.9]
+        )
+        self.verify(TestTrace.ck.deep, tocheck,
+            ['sub', 'sub', 'bar', 'pong', 3],
+            'Invalid x=14.9: required 14 <= x <= 14.5'
         )
