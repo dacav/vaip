@@ -116,14 +116,14 @@ class TestTrace(ut.TestCase):
             print('>>> error >> ', e, id(e))
 
 
-    def test_01(self):
+    def test_shallow(self):
         self.verify(
             TestTrace.ck.shallow,
             dict(foo=3),
             [], 'Expected list or tuple'
         )
 
-    def test_02(self):
+    def test_pong(self):
         tocheck = [14.0, 14.1, 14.2, 14.6, 14.4]
         self.verify(
             TestTrace.ck.pong,
@@ -138,4 +138,22 @@ class TestTrace(ut.TestCase):
             TestTrace.ck.pong,
             tocheck * 3,        # Size beyond array boundary.
             [], 'Invalid x=15: required  0 <= x <= 10'
+        )
+
+    def test_deep(self):
+        tocheck = dict()
+        self.verify(TestTrace.ck.deep, tocheck,
+            [], 'Missing non-optional field \'sub\''
+        )
+        tocheck['sub'] = dict()
+        self.verify(TestTrace.ck.deep, tocheck,
+            ['sub'], 'Missing non-optional field \'sub\''
+        )
+        tocheck['sub']['sub'] = dict()
+        self.verify(TestTrace.ck.deep, tocheck,
+            ['sub', 'sub'], 'Missing non-optional field \'foo\''
+        )
+        tocheck['sub']['sub']['foo'] = 'hello'
+        self.verify(TestTrace.ck.deep, tocheck,
+            ['sub', 'sub', 'foo'], "Type of 'hello': expecting int, got <class 'str'>"
         )

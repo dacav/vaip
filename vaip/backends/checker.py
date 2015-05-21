@@ -57,21 +57,21 @@ class Matching(tree.Matching):
 
 class String(tree.String):
 
-    def __call__(self, val, trace):
-        if type(val) is not str:
+    def __call__(self, value, trace):
+        if type(value) is not str:
             raise errors.InputError(
-                None,
+                'Type of %r: expecting str, got %r' % (value, type(value)),
                 trace,
             )
         if self.matching is not None:
-            self.matching(val, trace)
+            self.matching(value, trace)
 
 class Real(tree.Real):
 
     def __call__(self, value, trace):
         if type(value) not in (float, int):
             raise errors.InputError(
-                'Type %r: expecting float or int, got %r' % (
+                'Type of %r: expecting float or int, got %r' % (
                     value,
                     type(value)
                 ),
@@ -85,7 +85,10 @@ class Int(tree.Int):
     def __call__(self, value, trace):
         if type(value) is not int:
             raise errors.InputError(
-                None,
+                'Type of %r: expecting int, got %r' % (
+                    value,
+                    type(value)
+                ),
                 trace,
             )
         if self.range:
