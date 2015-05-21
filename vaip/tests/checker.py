@@ -22,7 +22,8 @@ class Tests(ut.TestCase):
             entry type user : (
                 uid : uid,
                 name : string optional,
-                age : int(0, *) optional
+                age : int(0, *) optional,
+                geek : bool optional
             );
             entry type counters : array (*, 9) of real (0, 1)
         ''')
@@ -51,6 +52,19 @@ class Tests(ut.TestCase):
         info['age'] = -1
         with self.assertRaises(errors.InputError):
             user_ck(info)
+
+    def test_bool(self):
+        user_ck = Tests.ck.user
+        info = dict(
+            uid = '91024abc',
+            geek = True
+        )
+        user_ck(info)
+        info['geek'] = 1
+        with self.assertRaises(errors.InputError):
+            user_ck(info)
+        info['geek'] = False
+        user_ck(info)
 
     def test_array_real(self):
         counters_ck = Tests.ck.counters

@@ -120,6 +120,14 @@ class Int(BaseBox):
     def __call__(self, value, trace):
         raise NotImplemented()
 
+class Bool(BaseBox):
+
+    def __repr__(self):
+        return 'Bool()'
+
+    def __call__(self, value, trace):
+        raise NotImplemented()
+
 class Array(BaseBox):
 
     def __init__(self, type, range=None):

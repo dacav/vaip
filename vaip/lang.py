@@ -29,6 +29,7 @@ lgen.add('KW_ARRAY', 'array')
 lgen.add('KW_OF', 'of')
 lgen.add('KW_STR', 'string')
 lgen.add('KW_INT', 'int')
+lgen.add('KW_BOOL', 'bool')
 lgen.add('KW_REAL', 'real')
 lgen.add('KW_MATCHING', 'matching')
 lgen.add('KW_OPTIONAL', 'optional')
@@ -38,7 +39,7 @@ lgen.ignore(r'\s+')
 pgen = ParserGenerator([
     'STAR', 'REGEX', 'LPAR', 'RPAR', 'COMMA', 'COLON', 'SCOLON', 'NUMBER',
     'KW_ENTRY', 'KW_TYPE', 'KW_ARRAY', 'KW_OF', 'KW_STR', 'KW_INT',
-    'KW_REAL', 'KW_MATCHING', 'KW_OPTIONAL',
+    'KW_BOOL', 'KW_REAL', 'KW_MATCHING', 'KW_OPTIONAL',
     'ID',
 ])
 
@@ -87,6 +88,10 @@ def type_def(ctx, p):
 @pgen.production('type_base : KW_STR opt_matching')
 def type_base(ctx, p):
     return ctx.binding.String(p[1])
+
+@pgen.production('type_base : KW_BOOL')
+def type_base(ctx, p):
+    return ctx.binding.Bool()
 
 @pgen.production('type_base : KW_INT opt_range')
 def type_base(ctx, p):

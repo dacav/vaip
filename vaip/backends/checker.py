@@ -94,6 +94,19 @@ class Int(tree.Int):
         if self.range:
             self.range(value, trace)
 
+
+class Bool(tree.Bool):
+
+    def __call__(self, value, trace):
+        if type(value) is not bool:
+            raise errors.InputError(
+                'Type of %r: expecting bool, got %r' % (
+                    value,
+                    type(value)
+                ),
+                trace,
+            )
+
 class Array(tree.Array):
 
     def __call__(self, value, trace):
