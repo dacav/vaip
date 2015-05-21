@@ -82,7 +82,7 @@ def type_list(ctx, p):
 @pgen.production('type_def : opt_tmod KW_TYPE ID COLON type_base')
 def type_def(ctx, p):
     return ctx.add_type(
-        tree.TypeDef(p[2].value, p[4], p[0])
+        ctx.binding.TypeDef(p[2].value, p[4], p[0])
     )
 
 @pgen.production('type_base : KW_STR opt_matching')
@@ -137,7 +137,7 @@ def opt_range(ctx, p):
 
 @pgen.production('opt_number : NUMBER')
 def opt_number(ctx, p):
-    return tree.Number(p[0].value)
+    return ctx.binding.Number(p[0].value)
 
 @pgen.production('opt_matching : KW_MATCHING REGEX')
 def opt_matching(ctx, p):

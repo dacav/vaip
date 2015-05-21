@@ -8,6 +8,8 @@ from vaip import (
 
 # ------------------------------------------------------------------------
 
+Number = tree.Number
+
 class Range(tree.Range):
 
     def __call__(self, v, trace):
@@ -44,7 +46,6 @@ class Range(tree.Range):
                     ),
                     trace
                 )
-
 
 class Matching(tree.Matching):
 
@@ -149,3 +150,10 @@ class Field(tree.Field):
             trace.append(self.name)
             self.type(val, trace)
             trace.pop()
+
+class TypeDef(tree.TypeDef):
+
+    def checker(self, datum):
+        if not self.entry:
+            raise errors.NonEntry('Type %r is not entry' % self)
+        return self.type(datum, trace=list())

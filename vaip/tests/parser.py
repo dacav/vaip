@@ -7,7 +7,7 @@ import unittest as ut
 
 # --- Locally installed modules -----------------------------------------
 # --- Program internal modules -------------------------------------------
-from vaip.tree import *
+from vaip import tree
 from vaip.lang import pgen, lgen, ParseContext
 from vaip.backends import checker
 
@@ -18,14 +18,14 @@ class Tests(ut.TestCase):
     def setUp(self):
         parse = pgen.build().parse
         lex = lgen.build().lex
-        self.parse = lambda text : parse(lex(text), ParseContext(checker))
+        self.parse = lambda text : parse(lex(text), ParseContext(tree))
 
     def test_opt_range(self):
         check = [
-            ('(1, *)',   Range(Number(1),   None)),
-            ('(1.4, *)', Range(Number(1.4), None)),
-            ('(*, 3.1)', Range(None, Number(3.1))),
-            ('(*, 2)',   Range(None,   Number(2))),
+            ('(1, *)',   tree.Range(tree.Number(1),   None)),
+            ('(1.4, *)', tree.Range(tree.Number(1.4), None)),
+            ('(*, 3.1)', tree.Range(None, tree.Number(3.1))),
+            ('(*, 2)',   tree.Range(None,   tree.Number(2))),
         ]
         for text, exp in check:
             only, *slurp = self.parse('type x : int ' + text)
@@ -45,7 +45,7 @@ class Tests(ut.TestCase):
         l1, l2, l3 = self.parse(text)
 
         self.assertEqual(l1.name, 'uid')
-        self.assertIsNotNone(l1.type.matching.match('0125af'))
+        self.assertIsNotNone(l1.type.matching.pattern.match('0125af'))
         self.assertFalse(l1.entry)
 
         self.assertEqual(l2.name, 'user')
@@ -58,8 +58,9 @@ class Tests(ut.TestCase):
 
         self.assertEqual(l3.name, 'counters')
         self.assertFalse(l3.entry)
-        self.assertEqual(l3.type.type.range, Range(Number(0), Number(1)))
-        self.assertEqual(l3.type.range, Range(None, Number(10)))
+        self.assertEqual(l3.type.type.range.start.value, 0)
+        self.assertEqual(l3.type.type.range.end.value, 1)
+        self.assertEqual(l3.type.range, tree.Range(None, tree.Number(10)))
 
     def test_nested(self):
         text = '''

@@ -16,6 +16,9 @@ from vaip import errors
 
 @ft.total_ordering
 class Number(BaseBox):
+    '''
+    Represent of a constant. Bound to a numeric value since actual code.
+    '''
 
     def __init__(self, v):
         super().__init__()
@@ -41,6 +44,9 @@ class Number(BaseBox):
     def __repr__(self):
         return 'Number(%r)' % self.value
 
+    def __call__(self, *args):
+        raise NotImplemented()
+
 
 class Range(BaseBox):
 
@@ -49,6 +55,12 @@ class Range(BaseBox):
         assert None in (start, end) or start <= end
         self.start = start
         self.end = end
+
+    def __repr__(self):
+        return 'Range(start=%r, end=%r)' % (self.start, self.end)
+
+    def __call__(self, *args):
+        raise NotImplemented()
 
     def __lt__(self, oth):
         if oth is None:
@@ -60,21 +72,11 @@ class Range(BaseBox):
             return False
         return self.start == oth.start and self.end == oth.end
 
-    def __repr__(self):
-        return 'Range(start=%r, end=%r)' % (self.start, self.end)
-
-    def __call__(self, *args):
-        raise NotImplemented()
-
 class Matching(BaseBox):
 
     def __init__(self, pattern):
         super().__init__()
         self.pattern = re.compile(pattern)
-
-    @property
-    def match(self):
-        return self.pattern.match
 
     def __repr__(self):
         return 'Match(%r)' % self.pattern
@@ -206,8 +208,3 @@ class TypeDef(BaseBox):
         if other is None:
             return False
         return self.name < other.name
-
-    def checker(self, datum):
-        if not self.entry:
-            raise errors.NonEntry('Type %r is not entry' % self)
-        return self.type(datum, trace=list())
