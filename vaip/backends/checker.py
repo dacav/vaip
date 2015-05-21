@@ -10,74 +10,126 @@ from vaip import (
 
 class Range(tree.Range):
 
-    def __call__(self, v):
+    def __call__(self, v, trace):
         if self.start is not None and v < self.start:
-            raise errors.InputError()
-        if self.end is not None and v > self.end:
-            raise errors.InputError()
+            wrong = True
+        elif self.end is not None and v > self.end:
+            wrong = True
+        else:
+            wrong = False
+
+        if wrong:
+            if self.start and self.end:
+                raise errors.InputError(
+                    'Invalid x=%r: required  %r <= x <= %r' % (
+                        v,
+                        self.start.value,
+                        self.end.value,
+                    ),
+                    trace
+                )
+            elif self.start:
+                raise errors.InputError(
+                    'Invalid x=%r: required  x >= %r' % (
+                        v,
+                        self.start.value,
+                    ),
+                    trace
+                )
+            elif self.end:
+                raise errors.InputError(
+                    'Invalid x=%r: required  x <= %r' % (
+                        v,
+                        self.end.value,
+                    ),
+                    trace
+                )
+
 
 class Matching(tree.Matching):
 
-    def __call__(self, v):
+    def __call__(self, v, trace):
         if self.pattern.match(v) is None:
-            raise errors.InputError()
+            raise errors.InputError(
+                None,
+                trace,
+            )
 
 class String(tree.String):
 
-    def __call__(self, val):
+    def __call__(self, val, trace):
         if type(val) is not str:
-            raise errors.InputError()
+            raise errors.InputError(
+                None,
+                trace,
+            )
         if self.matching is not None:
-            self.matching(val)
+            self.matching(val, trace)
 
 class Real(tree.Real):
 
-    def __call__(self, value):
-        if type(value) is not float:
-            raise errors.InputError()
+    def __call__(self, value, trace):
+        if type(value) not in (float, int):
+            raise errors.InputError(
+                'Type %r: expecting float or int, got %r' % (
+                    value,
+                    type(value)
+                ),
+                trace,
+            )
         if self.range:
-            self.range(value)
+            self.range(value, trace)
 
 class Int(tree.Int):
 
-    def __call__(self, value):
+    def __call__(self, value, trace):
         if type(value) is not int:
-            raise errors.InputError()
+            raise errors.InputError(
+                None,
+                trace,
+            )
         if self.range:
-            self.range(value)
+            self.range(value, trace)
 
 class Array(tree.Array):
 
-    def __call__(self, value):
+    def __call__(self, value, trace):
+        if type(value) not in (list, tuple):
+            raise errors.InputError(
+                'Expected list or tuple',
+                trace,
+            )
+
         if self.range is not None:
-            try:
-                self.range(len(value))
-            except TypeError:
-                raise errors.InputError()   # No len
-        try:
-            items = iter(value)
-            if items is value:
-                raise errors.InputError()   # would consume
-        except TypeError:
-            raise errors.InputError()   # Not iterable
-        for i in items:
-            self.type(i)
+            self.range(len(value), trace)
+        for n, i in enumerate(value):
+            trace.append(n)
+            self.type(i, trace)
+            trace.pop()
 
 class Map(tree.Map):
 
-    def __call__(self, val):
+    def __call__(self, val, trace):
         if type(val) is not dict:
-            raise errors.InputError()
+            raise errors.InputError(
+                'Not a mapping',
+                trace,
+            )
 
         for f in self.fields:
-            f(val)
+            f(val, trace)
 
 class Field(tree.Field):
 
-    def __call__(self, mapping):
+    def __call__(self, mapping, trace):
         val = mapping.get(self.name)
         if val is None:
             if not self.optional:
-                raise errors.InputError()
+                raise errors.InputError(
+                    'Missing non-optional field %r' % self.name,
+                    trace
+                )
         else:
-            self.type(val)
+            trace.append(self.name)
+            self.type(val, trace)
+            trace.pop()
