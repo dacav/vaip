@@ -63,7 +63,7 @@ class Range(BaseBox):
     def __repr__(self):
         return 'Range(start=%r, end=%r)' % (self.start, self.end)
 
-    def __call__(self, v, trace):
+    def __call__(self, *args):
         raise NotImplemented()
 
 class Matching(BaseBox):
@@ -79,7 +79,7 @@ class Matching(BaseBox):
     def __repr__(self):
         return 'Match(%r)' % self.pattern
 
-    def __call__(self, v, trace):
+    def __call__(self, *args):
         raise NotImplemented()
 
 class String(BaseBox):
@@ -93,7 +93,7 @@ class String(BaseBox):
             return 'String()'
         return 'String(matching=%r)' % self.matching
 
-    def __call__(self, val, trace):
+    def __call__(self, *args):
         raise NotImplemented()
 
 class Real(BaseBox):
@@ -105,7 +105,7 @@ class Real(BaseBox):
     def __repr__(self):
         return 'Real(range=%r)' % self.range
 
-    def __call__(self, value, trace):
+    def __call__(self, *args):
         raise NotImplemented()
 
 class Int(BaseBox):
@@ -117,7 +117,7 @@ class Int(BaseBox):
     def __repr__(self):
         return 'Int(range=%r)' % self.range
 
-    def __call__(self, value, trace):
+    def __call__(self, *args):
         raise NotImplemented()
 
 class Bool(BaseBox):
@@ -125,7 +125,7 @@ class Bool(BaseBox):
     def __repr__(self):
         return 'Bool()'
 
-    def __call__(self, value, trace):
+    def __call__(self, *args):
         raise NotImplemented()
 
 class Array(BaseBox):
@@ -138,7 +138,7 @@ class Array(BaseBox):
     def __repr__(self):
         return 'Array(type=%r, range=%r)' % (self.type, self.range)
 
-    def __call__(self, value, trace):
+    def __call__(self, *args):
         raise NotImplemented()
 
 class Map(BaseBox):
@@ -152,7 +152,7 @@ class Map(BaseBox):
     def __repr__(self):
         return 'Map(fields=%r)' % self.fields
 
-    def __call__(self, val, trace):
+    def __call__(self, *args):
         raise NotImplemented()
 
 class Field(BaseBox):
@@ -170,7 +170,7 @@ class Field(BaseBox):
             Modifier('optional')
         )
 
-    def __call__(self, mapping, trace):
+    def __call__(self, *args):
         raise NotImplemented()
 
 class Modifier(BaseBox):
