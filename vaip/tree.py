@@ -157,7 +157,9 @@ class Field(BaseBox):
 
     def __repr__(self):
         return 'Field(name=%r, type=%r, mod=%r)' % (
-            self.name, self.type, self.mod
+            self.name,
+            self.type,
+            Modifier('optional')
         )
 
     def __call__(self, mapping, trace):
@@ -182,7 +184,9 @@ class TypeDef(BaseBox):
 
     def __repr__(self):
         return 'TypeDef(name=%r, type=%r, mod=%r)' % (
-            self.name, self.type, self.mod
+            self.name,
+            self.type,
+            Modifier('entry')
         )
 
     def __eq__(self, other):
