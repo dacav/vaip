@@ -63,7 +63,7 @@ class Range(BaseBox):
     def __repr__(self):
         return 'Range(start=%r, end=%r)' % (self.start, self.end)
 
-    def __call__(self, v):
+    def __call__(self, v, trace):
         raise NotImplemented()
 
 class Matching(BaseBox):
@@ -79,7 +79,7 @@ class Matching(BaseBox):
     def __repr__(self):
         return 'Match(%r)' % self.pattern
 
-    def __call__(self, v):
+    def __call__(self, v, trace):
         raise NotImplemented()
 
 class String(BaseBox):
@@ -93,7 +93,7 @@ class String(BaseBox):
             return 'String()'
         return 'String(matching=%r)' % self.matching
 
-    def __call__(self, val):
+    def __call__(self, val, trace):
         raise NotImplemented()
 
 class Real(BaseBox):
@@ -105,7 +105,7 @@ class Real(BaseBox):
     def __repr__(self):
         return 'Real(range=%r)' % self.range
 
-    def __call__(self, value):
+    def __call__(self, value, trace):
         raise NotImplemented()
 
 class Int(BaseBox):
@@ -117,7 +117,7 @@ class Int(BaseBox):
     def __repr__(self):
         return 'Int(range=%r)' % self.range
 
-    def __call__(self, value):
+    def __call__(self, value, trace):
         raise NotImplemented()
 
 class Array(BaseBox):
@@ -130,7 +130,7 @@ class Array(BaseBox):
     def __repr__(self):
         return 'Array(type=%r, range=%r)' % (self.type, self.range)
 
-    def __call__(self, value):
+    def __call__(self, value, trace):
         raise NotImplemented()
 
 class Map(BaseBox):
@@ -144,7 +144,7 @@ class Map(BaseBox):
     def __repr__(self):
         return 'Map(fields=%r)' % self.fields
 
-    def __call__(self, val):
+    def __call__(self, val, trace):
         raise NotImplemented()
 
 class Field(BaseBox):
@@ -160,7 +160,7 @@ class Field(BaseBox):
             self.name, self.type, self.mod
         )
 
-    def __call__(self, mapping):
+    def __call__(self, mapping, trace):
         raise NotImplemented()
 
 class Modifier(BaseBox):
@@ -194,3 +194,8 @@ class TypeDef(BaseBox):
         if other is None:
             return False
         return self.name < other.name
+
+    def checker(self, datum):
+        if not self.entry:
+            raise errors.NonEntry('Type %r is not entry' % self)
+        return self.type(datum, trace=list())

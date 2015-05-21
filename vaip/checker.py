@@ -17,7 +17,7 @@ class Checker:
         ctx = ParseContext(checker)
         for typedef in parse(lex(specification), ctx):
             if typedef.entry:
-                cb = entries[typedef.name] = typedef.type
+                cb = entries[typedef.name] = typedef.checker
                 try:
                     # Might fail if this type has a reserved name in
                     # python. Still accessible with [] notation

@@ -7,4 +7,10 @@ class SpecificationError(Error): pass
 class UnboundTypeError(SpecificationError): pass
 class RedefinedType(SpecificationError): pass
 
-class InputError(Error): pass
+class NonEntry(Error): pass
+
+class InputError(Error):
+
+    def __init__(self, msg, trace):
+        super().__init__(msg)
+        self.trace = trace
