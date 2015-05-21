@@ -194,7 +194,7 @@ class TypeDef(BaseBox):
             return False
         return self.name == other.name
 
-    def __lt__(self):
+    def __lt__(self, other):
         if other is None:
             return False
         return self.name < other.name

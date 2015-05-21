@@ -69,7 +69,7 @@ class Tests(ut.TestCase):
         with self.assertRaises(errors.InputError):
             counters_ck(info)
 
-    def test_array_real(self):
+    def test_array_length(self):
         counters_ck = Tests.ck.counters
         info = [0.1, 0.2, 0.3] * 3
         counters_ck(info)

@@ -59,7 +59,7 @@ class ParseContext:
 
     def add_type(self, t):
         if t.name in self.types:
-            raise errors.RedefinedType(name)
+            raise errors.RedefinedType(t.name)
         self.types[t.name] = t
         return t
 
